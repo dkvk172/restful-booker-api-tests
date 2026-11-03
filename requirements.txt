@@ -1,0 +1,8 @@
+pytest>=8.0
+pytest-html>=4.1
+pytest-xdist>=3.5
+requests>=2.31
+PyYAML>=6.0
+jsonschema>=4.21
+allure-pytest>=2.13
+faker>=24.0
