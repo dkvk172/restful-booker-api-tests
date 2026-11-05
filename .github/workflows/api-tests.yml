@@ -1,0 +1,41 @@
+name: api-tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SERVICE_SHA: 00461155995c8636866bf51dc444f63033da44fb   # 与本机 git rev-parse HEAD 一致
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Start restful-booker (pinned)
+        run: |
+          SERVICE_DIR="$RUNNER_TEMP/restful-booker"
+          git clone --quiet https://github.com/mwinteringham/restful-booker.git "$SERVICE_DIR"
+          git -C "$SERVICE_DIR" checkout --quiet "$SERVICE_SHA"
+          npm ci --prefix "$SERVICE_DIR"
+          (cd "$SERVICE_DIR" && PORT=3001 nohup npm start > service.log 2>&1 &)
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3001/ping >/dev/null; then
+              echo "restful-booker up @ $SERVICE_SHA"; exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::restful-booker failed to start"
+          tail -n 50 "$SERVICE_DIR/service.log"
+          exit 1
+      - name: Install test deps
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          mkdir -p reports
+          pytest -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: report, path: reports/ }
