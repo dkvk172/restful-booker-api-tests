@@ -1,0 +1,67 @@
+# 每个 case 的 id 与 docs/test-matrix.md 的用例 ID 完全一致，用于追溯
+cases:
+  - id: TC-BOOK-POST-002
+    title: 缺 firstname
+    remove: [firstname]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-003
+    title: 缺 lastname
+    remove: [lastname]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-004
+    title: 缺 totalprice
+    remove: [totalprice]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-005
+    title: 缺 depositpaid
+    remove: [depositpaid]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-006
+    title: 缺 bookingdates.checkin
+    remove: [bookingdates.checkin]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-007
+    title: 缺 bookingdates.checkout
+    remove: [bookingdates.checkout]
+    expected: {status: 400}
+    xfail: true
+    reason: "缺必填实测 500（应 400）DEF-001"
+
+  - id: TC-BOOK-POST-017
+    title: totalprice 为字符串数字
+    set:
+      totalprice: "111abc"
+    expected: {status: 400}
+    xfail: true
+    reason: "parseInt 静默转换，实测 200/111 DEF-010"
+
+  - id: TC-BOOK-POST-021
+    title: totalprice 非数字
+    set:
+      totalprice: "abc"
+    expected: {status: 400}
+    xfail: true
+    reason: "parseInt→NaN，实测 200/null DEF-010"
+
+  - id: TC-BOOK-POST-020
+    title: firstname 前后空格被 trim
+    set:
+      firstname: " Jim "
+    expected: {status: 200}
+    expected_body:
+      booking.firstname: Jim
