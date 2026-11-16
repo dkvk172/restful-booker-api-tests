@@ -1,10 +1,9 @@
-import pytest, pathlib, yaml, requests
+import pytest, pathlib, yaml, requests,uuid
 
 from api.booking_api import BookingAPI
 from api.auth_api import AuthAPI
 from utils.config_loader import load_config
 from utils.logger import get_logger
-from api.ping_api import  PingAPI
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -20,6 +19,29 @@ def service_ready(config):
         )
     assert resp.status_code == 201, f"/ping 期望 201，实际 {resp.status_code}"
 
+@pytest.fixture
+def make_booking(booking_api, token):
+    """按需造预订，测试结束统一删除；返回 {id, payload} 便于断言。"""
+    created = []
+    def _make(**overrides):
+        payload = {
+            "firstname": f"QA{uuid.uuid4().hex[:8]}",
+            "lastname": "Auto",
+            "totalprice": 123,
+            "depositpaid": True,
+            "bookingdates": {"checkin": "2026-07-10", "checkout": "2026-07-12"},
+            "additionalneeds": "None",
+        }
+        payload.update(overrides)
+        resp = booking_api.create(payload)
+        assert resp.status_code == 200, resp.text
+        booking_id = resp.json()["bookingid"]
+        created.append(booking_id)
+        return {"id": booking_id, "payload": payload}
+
+    yield _make
+    for booking_id in created:
+        booking_api.delete(booking_id, token)
 
 @pytest.fixture(scope="session")
 def config():

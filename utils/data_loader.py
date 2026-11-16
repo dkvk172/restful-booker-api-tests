@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import pathlib
 
+import pytest
 import yaml
 
 DATA_DIR = pathlib.Path(__file__).resolve().parent.parent / "data"
@@ -59,3 +60,18 @@ def build_payload(base: dict, case: dict) -> dict:
     for path, value in (case.get("set") or {}).items():
         set_path(payload, path, value)
     return payload
+
+
+def parametrize_cases(cases: list[dict]) -> list:
+    """把 YAML 用例转成 pytest.param：id 用矩阵 ID，xfail/smoke 由数据驱动，避免各文件重复 _params。"""
+    params = []
+    for case in cases:
+        marks = []
+        if case.get("xfail"):
+            marks.append(
+                pytest.mark.xfail(strict=True, reason=case.get("reason", case["id"]))
+            )
+        if case.get("smoke"):
+            marks.append(pytest.mark.smoke)
+        params.append(pytest.param(case, id=case["id"], marks=marks))
+    return params

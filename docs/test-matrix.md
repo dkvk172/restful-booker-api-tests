@@ -1,6 +1,6 @@
 # restful-booker 接口测试用例矩阵
 
-> 版本：v0.2 ｜ 更新：2026-11-10 ｜
+> 版本：v0.3 ｜ 更新：2026-11-16 ｜
 > 被测服务：restful-booker @ `00461155995c8636866bf51dc444f63033da44fb`（localhost:3001）
 > 需求来源：官方 API 文档 + SUT 源码（`routes/index.js`）+ 实测回填
 
@@ -46,20 +46,20 @@
 | TC-AUTH-004        | POST /auth          | 逆向 | 用户名密码为空值                       | ""/""                                                      | 200 + reason=Bad credentials        | P1     | ✅       | tests/test_auth.py::test_login_with_empty                       |                                                      |
 | TC-AUTH-005        | POST /auth          | 契约 | 多余字段被忽略、仍发 token             | 正确凭据+extra=x                                           | 200 + token                         | P2     | ⬜       |                                                                 |                                                      |
 | TC-AUTH-006        | POST /auth          | 契约 | 非法 JSON                              | Content-Type:application/json + body{bad json              | 400                                 | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-001   | GET /booking        | 正向 | 无过滤列表                             | 无                                                         | 200 + 数组（不断言条数，seed 随机） | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-002   | GET /booking        | 正向 | 过滤条件为firstname                    | 先POST造一条唯一数据，再用该数据过滤。                     | 200                                 | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-003   | GET /booking        | 正向 | 过滤条件为lastname                     | 自造数据                                                   | 200                                 | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-004   | GET /booking        | 正向 | 过滤条件为checkin                      | 造 checkin=2026-07-10，查 checkin=2026-07-01               | 200                                 | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-005   | GET /booking        | 正向 | 过滤条件为checkout                     | 自造数据                                                   | 200                                 | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-006   | GET /booking        | 正向 | 多参数过滤                             | 先POST造一条唯一数据，再用该数据过滤。                     | 200                                 | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-007   | GET /booking        | 逆向 | 无匹配信息                             | /booking?checkin=2099-01-01                                | 200 + []                            | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-008   | GET /booking        | 逆向 | 非法日期                               | /booking?checkin=abc                                       | 500（应然 400 → 🐞 DEF）            | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-009   | GET /booking        | 契约 | 未声明参数被忽略                       | /booking?totalprice=100                                    | 200 + 全量数组                      | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-010   | GET /booking        | 契约 | Accept 忽略                            | 输入Accept:application/xml                                 | 200 + JSON 数组                     | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-011   | GET /booking        | 边界 | 过滤日期相等                           | 造 checkin=2026-07-01 的预订，查同值                       | 200 且包含                          | P1     | 🔍       |                                                                 | $gt 预计不含 → DEF                                   |
-| TC-BOOK-LIST-012   | GET /booking        | 边界 | checkout 相等日期                      | 造 checkout=2026-07-01，查同值                             | 200 且包含                          | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-013   | GET /booking        | 正向 | 日期范围组合过滤                       | 造07-01~07-10，查checkin=2026-06-01&checkout=2026-07-20    | 200 且包含                          | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-LIST-014   | GET /booking        | 契约 | 列表项结构                             | 无                                                         | 每项仅 bookingid（int）             | P1     | ⬜       |                                                                 |                                                      |
+| TC-BOOK-LIST-001   | GET /booking        | 正向 | 无过滤列表                             | 无 | 200 + 数组（不断言条数，seed 随机） | P1 | ✅ | tests/test_booking_list.py::test_list_returns_id_array |  |
+| TC-BOOK-LIST-002   | GET /booking        | 正向 | 过滤条件为firstname                    | 造唯一 firstname 后按该值过滤 | 200 且恰好命中该条 | P1 | ✅ | tests/test_booking_list.py::test_list_filter_by_firstname |  |
+| TC-BOOK-LIST-003   | GET /booking        | 正向 | 过滤条件为lastname                     | 造唯一 lastname 后按该值过滤 | 200 且恰好命中该条 | P2 | ✅ | tests/test_booking_list.py::test_list_filter_by_lastname |  |
+| TC-BOOK-LIST-004   | GET /booking        | 正向 | 过滤条件为checkin                      | 造 checkin=2027-05-01，查 checkin=2026-12-01 | 200 且包含 | P1 | ✅ | tests/test_booking_list.py::test_list_filter_checkin_after |  |
+| TC-BOOK-LIST-005   | GET /booking        | 正向 | 过滤条件为checkout                     | 造 checkout=2026-01-05，查 checkout=2026-02-01 | 200 且包含 | P2 | ✅ | tests/test_booking_list.py::test_list_filter_checkout_before |  |
+| TC-BOOK-LIST-006   | GET /booking        | 正向 | 多参数过滤                             | 唯一 firstname + lastname 同时过滤 | 200 且恰好命中该条（AND） | P1 | ✅ | tests/test_booking_list.py::test_list_filter_by_two_fields |  |
+| TC-BOOK-LIST-007   | GET /booking        | 逆向 | 无匹配信息                             | firstname=nobody-<uuid> | 200 + [] | P1 | ✅ | tests/test_booking_list.py::test_list_no_match_returns_empty |  |
+| TC-BOOK-LIST-008   | GET /booking        | 逆向 | 非法日期                               | checkin=abc | 400（实测 500 → DEF-007） | P1 | 🐞 xfail | tests/test_booking_list.py::test_list_invalid_checkin | new Date('abc').toISOString() 抛 RangeError，未被捕获 |
+| TC-BOOK-LIST-009   | GET /booking        | 契约 | 未声明参数被忽略                       | totalprice=100 | 200 + 全量数组（参数被忽略） | P1 | ✅ | tests/test_booking_list.py::test_list_ignores_unknown_params |  |
+| TC-BOOK-LIST-010   | GET /booking        | 契约 | Accept 忽略                            | Accept: application/xml | 200 + XML（实测 JSON → DEF-009） | P2 | 🐞 xfail | tests/test_booking_list.py::test_list_accept_xml | parse.bookingids 恒返回数组，418 分支不可达 |
+| TC-BOOK-LIST-011   | GET /booking        | 边界 | 过滤日期相等                           | 造 checkin=2027-05-01，查同值 | 200 且包含（应然 ≥） | P1 | 🐞 xfail | tests/test_booking_list.py::test_list_checkin_equal_boundary | $gt 排除等值；查询值转 ISO 串后与库内 YYYY-MM-DD 做字符串比较 |
+| TC-BOOK-LIST-012   | GET /booking        | 边界 | checkout 相等日期                      | 造 checkout=2027-05-10，查同值 | 200 且包含 | P2 | ✅ | tests/test_booking_list.py::test_list_checkout_equal_boundary | 包含是字符串比较的巧合（'05-10' < '05-10T...'），非 <= 语义 |
+| TC-BOOK-LIST-013   | GET /booking        | 正向 | 日期范围组合过滤                       | 造 2026-01-01~01-05，查 checkin=2025-12-01&checkout=2026-02-01 | 200 且包含 | P2 | ✅ | tests/test_booking_list.py::test_list_filter_date_range |  |
+| TC-BOOK-LIST-014   | GET /booking        | 契约 | 列表项结构                             | 无 | 每项仅 bookingid（int） | P1 | ✅ | tests/test_booking_list.py::test_list_item_contract |  |
 | TC-BOOK-GET-001    | GET /booking/:id    | 正向 | 正确获得信息                           | /booking/{id}                                              | 200                                 | P0     | ✅       | tests/test_booking.py::test_get_booking                         |                                                      |
 | TC-BOOK-GET-002    | GET /booking/:id    | 逆向 | 不存在的id                             | /booking/999999                                            | 404                                 | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-GET-003    | GET /booking/:id    | 逆向 | 非法id                                 | /booking/abc                                               | 404                                 | P1     | ⬜       |                                                                 | parseInt('abc')=NaN，证据 models:19                  |
@@ -69,12 +69,12 @@
 | TC-BOOK-GET-007    | GET /booking/:id    | 契约 | Accept: urlencoded                     | application/x-www-form-urlencoded                          | 200 + 表单串                        | P2     | ⬜       |                                                                 | 响应Content-Type可能是 text/html（res.send(string)） |
 | TC-BOOK-GET-008    | GET /booking/:id    | 边界 | id=0 / 负数                            | /booking/0 + /booking/-1                                   | 404                                 | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-POST-001   | POST /booking       | 正向 | 最小必填创建                           | data/booking.yaml                                          | 200 + bookingid                     | P0     | ✅       | tests/test_booking.py::test_create_booking                      |                                                      |
-| TC-BOOK-POST-002   | POST /booking       | 逆向 | 缺firstname                            | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P0     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
-| TC-BOOK-POST-003   | POST /booking       | 逆向 | 缺lastname                             | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P1     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
-| TC-BOOK-POST-004   | POST /booking       | 逆向 | 缺totalprice                           | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P1     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
-| TC-BOOK-POST-005   | POST /booking       | 逆向 | 缺depositpaid                          | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P1     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
-| TC-BOOK-POST-006   | POST /booking       | 逆向 | 缺checkin                              | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P1     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
-| TC-BOOK-POST-007   | POST /booking       | 逆向 | 缺checkout                             | 删字段后 POST  参数化一组（6 组）                          | 400                                 | P1     | ✅       | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-002   | POST /booking       | 逆向 | 缺firstname                            | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P0     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-003   | POST /booking       | 逆向 | 缺lastname                             | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-004   | POST /booking       | 逆向 | 缺totalprice                           | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-005   | POST /booking       | 逆向 | 缺depositpaid                          | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-006   | POST /booking       | 逆向 | 缺checkin                              | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
+| TC-BOOK-POST-007   | POST /booking       | 逆向 | 缺checkout                             | 删字段后 POST  参数化一组（共 9 组）                          | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 500 → DEF-001                                   |
 | TC-BOOK-POST-008   | POST /booking       | 边界 | 非法日期                               | checkin=2025-13-41                                         | 400（实测 200 且 0NaN-aN-aN）       | P1     | 🐞 xfail | tests/test_booking.py::test_create_booking_with_invalid_date    |                                                      |
 | TC-BOOK-POST-009   | POST /booking       | 边界 | checkin 晚于 checkout                  | checkin=2026-11-11 checkout=2026-03-01                     | 400                                 | P1     | 🔍       |                                                                 | 预计实测200 → DEF                                    |
 | TC-BOOK-POST-010   | POST /booking       | 契约 | 额外字段                               | 合法 body + extra=x                                        | 200 + 响应体不含 extra 字段         | P1     | ⬜       |                                                                 |                                                      |
@@ -84,11 +84,11 @@
 | TC-BOOK-POST-014   | POST /booking       | 逆向 | 非法JSONbody                           | Content-Type: application/json + body {bad                 | 400                                 | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-POST-015   | POST /booking       | 契约 | Accept                                 | Accept: application/xml                                    | 200 + created-booking XML           | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-POST-016   | POST /booking       | 契约 | 非法Accept                             | Accept: text/plain                                         | 418                                 | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-POST-017   | POST /booking       | 边界 | totalprice 字符串被静默转换            | totalprice: "111abc"                                       | 400                                 | P1     | ✅       |                                                                 | 实测 200 + 111 → DEF                                 |
+| TC-BOOK-POST-017   | POST /booking       | 边界 | totalprice 字符串被静默转换            | totalprice: "111abc"                                       | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 200 + 111 → DEF-010                             |
 | TC-BOOK-POST-018   | POST /booking       | 边界 | depositpaid 字符串转布尔               | depositpaid: "false"                                       | 400                                 | P1     | ⬜       |                                                                 | 实测200 + true → DEF                                 |
 | TC-BOOK-POST-019   | POST /booking       | 正向 | application/x-www-form-urlencoded 创建 | 表单 body                                                  | 200 + bookingid                     | P2     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-POST-020   | POST /booking       | 边界 | firstname 前后空格被 trim              | " Jim "                                                    | 200 + 响应 "Jim"                    | P2     | ✅       | tests/test_booking_negative.py                                  |                                                      |
-| TC-BOOK-POST-021   | POST /booking       | 边界 | totalprice 非数字 "abc"                | "abc"                                                      | 200 + 响应 null                     | P1     | ✅       | tests/test_booking_negative.py                                  |                                                      |
+| TC-BOOK-POST-021   | POST /booking       | 边界 | totalprice 非数字 "abc"                | "abc"                                                      | 400                                 | P1     | 🐞 xfail | tests/test_booking_negative.py                                  | 实测 200/null DEF-010                                |
 | TC-BOOK-POST-022   | POST /booking       | 逆向 | firstname 空串                         | ""                                                         | 500（应然 400）                     | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-PUT-001    | PUT /booking/:id    | 正向 | 更新信息                               | data/booking.yaml + 改firstname=Updated                    | 200 + firstname                     | P0     | ✅       | tests/test_booking.py::test_update_booking                      |                                                      |
 | TC-BOOK-PUT-002    | PUT /booking/:id    | 逆向 | 缺字段                                 | 只传 firstname（缺其余 5 个必填）                          | 400                                 | P1     | ⬜       |                                                                 |                                                      |
@@ -101,15 +101,17 @@
 | TC-BOOK-PUT-009    | PUT /booking/:id    | 正向 | Content-Type: text/xml 更新            | XML body + Basic                                           | 200                                 | P2     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-PUT-010    | PUT /booking/:id    | 权限 | Basic 错误（大小写/错值）              | Authorization: basic ...                                   | 403                                 | P2     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-PUT-011    | PUT /booking/:id    | 契约 | 不传additionalneeds更新                |                                                            | 200，但旧 additionalneeds 仍在      | P2     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-001  | PATCH /booking/:id  | 正向 | 更新多个字段                           | {"firstname":"Patched","totalprice":"100"}                 | 200                                 | P0     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-002  | PATCH /booking/:id  | 逆向 | 更新类型错误                           | {"totalprice":"abc"}                                       | 400                                 | P1     | 🔍       |                                                                 | 实测 200 → DEF                                       |
-| TC-BOOK-PATCH-003  | PATCH /booking/:id  | 逆向 | 更新不存在的 id                        | /booking/999999                                            | 404                                 | P1     | ⬜       |                                                                 | 实测405 → DEF                                        |
-| TC-BOOK-PATCH-004  | PATCH /booking/:id  | 权限 | 无token部分更新                        | 完整合法 body，不带任何认证头                              | 403                                 | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-005  | PATCH /booking/:id  | 契约 | Accept: application/xml 返回 XML       | Accept: application/xml                                    | 200 + XML                           | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-006  | PATCH /booking/:id  | 正向 | 只改firstname                          | {"firstname":"x"}                                          | 200 + 其余字段保持不变              | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-007  | PATCH /booking/:id  | 契约 | 非法 Accept                            | Accept: text/plain                                         | 500；应然 406/418 → 🐞              | P1     | ⬜       |                                                                 |                                                      |
-| TC-BOOK-PATCH-008  | PATCH /booking/:id  | 边界 | 只传 bookingdates.checkin              | {"bookingdates":{"checkin":"2026-08-01"}}                  | 200 + checkout保留原值              | P1     | ⬜       |                                                                 | 预计checkout 丢失/变 0NaN                            |
-| TC-BOOK-PATCH-009  | PATCH /booking/:id  | 边界 | 空body{}                               | {}                                                         | 200 no-op                           |        |          |                                                                 |                                                      |
+| TC-BOOK-PATCH-001  | PATCH /booking/:id  | 正向 | 更新多个字段                           | {"firstname":"Patched","totalprice":"100"}                 | 200                                 | P0     | ✅       | tests/test_patch.py::test_patch                                 |                                                      |
+| TC-BOOK-PATCH-002  | PATCH /booking/:id  | 逆向 | 更新类型错误                           | {"totalprice":"abc"}                                       | 400                                 | P1     | 🐞 xfail | tests/test_patch.py::test_patch                                 | 实测 200 → DEF                                       |
+| TC-BOOK-PATCH-003  | PATCH /booking/:id  | 逆向 | 更新不存在的 id                        | /booking/999999                                            | 404                                 | P1     | ✅       | tests/test_patch.py::test_patch_nonexistent_id                  | 实测405 → DEF                                        |
+| TC-BOOK-PATCH-004  | PATCH /booking/:id  | 权限 | 无token部分更新                        | 完整合法 body，不带任何认证头                              | 403                                 | P1     | ✅       | tests/test_patch.py::test_patch_no_auth                         |                                                      |
+| TC-BOOK-PATCH-005  | PATCH /booking/:id  | 契约 | Accept: application/xml 返回 XML       | Accept: application/xml                                    | 200 + XML                           | P1     | 🐞 xfail | tests/test_patch.py::test_patch_accept_xml_content_type         | 200 但 Content-Type=text/html → DEF-015              |
+| TC-BOOK-PATCH-006  | PATCH /booking/:id  | 正向 | 只改firstname                          | {"firstname":"x"}                                          | 200 + 其余字段保持不变              | P1     | ✅       | tests/test_patch.py::test_patch                                 |                                                      |
+| TC-BOOK-PATCH-007  | PATCH /booking/:id  | 契约 | 非法 Accept                            | Accept: text/plain                                         | 406（实测 500 → DEF-006） | P1     | 🐞 xfail | tests/test_patch.py::test_patch_invalid_accept_returns_406      | 实测 500；应然 406。SUT 现状 GET/PUT/POST=418        |
+| TC-BOOK-PATCH-008  | PATCH /booking/:id  | 边界 | 只传 bookingdates.checkin              | {"bookingdates":{"checkin":"2026-08-01"}}                  | 200 + checkout保留原值              | P1     | 🐞 xfail | tests/test_patch.py::test_patch                                 | 预计checkout 丢失/变 0NaN                            |
+| TC-BOOK-PATCH-009  | PATCH /booking/:id  | 边界 | 空body{}                               | {}                                                         | 200 no-op                           | P2 | ⬜ |                                                                 | 未实现：空 body 应为 no-op，待补 |
+| TC-BOOK-PATCH-010 | PATCH /booking/:id | 契约 | Accept: urlencoded 返回表单串 | Accept: application/x-www-form-urlencoded | 200 + firstname=... | P1 | 🐞 xfail | tests/test_patch.py::test_patch_accept_urlencoded_returns_form | 200 但 body="formurlencoded is not a function" → DEF-014 |
+| TC-BOOK-PATCH-011 | PATCH /booking/:id | 契约 | 协商失败不得落库 | Accept: text/plain + 合法 body | 406 且数据不变 | P1 | 🐞 xfail | tests/test_patch.py::test_patch_invalid_accept_must_not_mutate | 实测 500 且 firstname 已被修改 → DEF-013 |
 | TC-BOOK-DELETE-001 | DELETE /booking/:id | 正向 | 删除预订                               | 已创建 id                                                  | 201，随后 GET 404                   | P0     | ✅       | tests/test_booking.py::test_delete_booking                      |                                                      |
 | TC-BOOK-DELETE-002 | DELETE /booking/:id | 逆向 | 删除不存在的                           | /booking/999999                                            | 405（应然 404 → 🐞）                | P1     | ⬜       |                                                                 |                                                      |
 | TC-BOOK-DELETE-003 | DELETE /booking/:id | 权限 | 无token删除                            | /booking/{id}                                              | 403                                 | P0     | ✅       | tests/test_booking.py::test_delete_booking_no_auth              |                                                      |
@@ -118,17 +120,22 @@
 
 ## 4. 覆盖统计
 
-| 端点                | P  | N  | B  | A | C  | 合计  | 已自动化  |
-|---------------------|----|----|----|---|----|-------|-----------|
-| GET /ping           | 1  | 0  | 0  | 0 | 0  | 1     | 1         |
-| POST /auth          | 1  | 3  | 0  | 0 | 2  | 6     | 4         |
-| GET /booking        | 7  | 2  | 2  | 0 | 3  | 14    | 0         |
-| GET /booking/:id    | 1  | 2  | 2  | 0 | 3  | 8     | 1         |
-| POST /booking       | 3  | 8  | 7  | 1 | 3  | 22    | 3         |
-| PUT /booking/:id    | 2  | 2  | 1  | 5 | 0  | 10    | 3         |
-| PATCH /booking/:id  | 2  | 2  | 1  | 1 | 2  | 8     | 0         |
-| DELETE /booking/:id | 1  | 1  | 1  | 1 | 0  | 4     | 2         |
-| 合计                | 18 | 20 | 14 | 8 | 13 | 73    | 14        |
+> 数据来源：`scripts/stats.py --total-endpoints 8`（2026-11-16 实测：47 条自动化 / 8 个端点）。
+
+| 端点                | P  | N  | B  | A | C  | 合计  | 已自动化 | 其中 xfail |
+|---------------------|----|----|----|---|----|-------|----------|------------|
+| GET /ping           | 1  | 0  | 0  | 0 | 0  | 1     | 1        | 0          |
+| POST /auth          | 1  | 3  | 0  | 0 | 2  | 6     | 4        | 0          |
+| GET /booking        | 7  | 2  | 2  | 0 | 3  | 14    | 14       | 3          |
+| GET /booking/:id    | 1  | 2  | 2  | 0 | 3  | 8     | 1        | 0          |
+| POST /booking       | 3  | 8  | 7  | 1 | 3  | 22    | 12       | 9          |
+| PUT /booking/:id    | 2  | 2  | 1  | 5 | 1  | 11    | 3        | 1          |
+| PATCH /booking/:id  | 2  | 2  | 2  | 1 | 4  | 11    | 10       | 6          |
+| DELETE /booking/:id | 1  | 1  | 1  | 1 | 0  | 4     | 2        | 0          |
+| 全链路              | 1  | 0  | 0  | 0 | 0  | 1     | 0        | 0          |
+| 合计                | 19 | 20 | 15 | 8 | 16 | 78    | 47       | 19         |
+
+**解读**：8/8 端点都有用例，但「覆盖」不等于「覆盖够」——详情端点 1/8、PUT 3/11、DELETE 2/4 是下一轮重点；LIST 与 PATCH 已按矩阵 1:1 落地。
 
 ## 5. 缺陷台账
 
@@ -146,13 +153,24 @@
 | DEF-010 | POST-017 / POST-018 / POST-021                | 字符串被静默转换                  | 400          | 200            |      |      |
 | DEF-011 | PATCH-008                                     | 嵌套部分更新丢 checkout           | 保留         | 丢失/0NaN      |      |      |
 | DEF-012 | 全局                                          | 错误体只有纯文本状态消息          | 结构化错误码 | Bad Request 等 |      |      |
+| DEF-013 | PATCH-011                                     | 非法 Accept 时先写库后渲染，500 但数据已变 | 协商/校验在写入前，406 且数据不变 | 500 且 firstname 被改 |      |      |
+| DEF-014 | PATCH-010                                     | Accept: urlencoded 返回 200 + 错误字符串 | 200 + key=value 表单串 | 200 + `formurlencoded is not a function` |      |      |
+| DEF-015 | PATCH-005                                     | XML 响应 Content-Type 为 text/html | application/xml | text/html |      |      |
 
-## 6. 缺口清单（⬜ 行 → 次日任务）
+## 6. 缺口清单（⬜ / 🔍 行，共 31 行）
 
-- [ ] `TC-BOOK-LIST-*`：列表 + 4 个过滤参数全部未写
-- [ ] ...
+| 优先级 | 端点 | 缺口 | 说明 |
+|---|---|---:|---|
+| 1 | GET /booking/:id | 7 | Accept 四态 + 404 + 非法 id + id=0/负数，内容协商的主战场（T17） |
+| 2 | POST /booking | 10 | 文本/XML/表单编码、非法 JSON、额外字段、Accept、空串（T15 收尾） |
+| 3 | PUT /booking/:id | 8 | 错 token、Basic、缺字段 400、405、text/xml、不传 additionalneeds（T18） |
+| 4 | POST /auth | 2 | 多余字段、非法 JSON（T14 收尾） |
+| 5 | DELETE /booking/:id | 2 | 重复删除 405、非法 id（T18 收尾） |
+| 6 | PATCH /booking/:id | 1 | 空 body no-op（PATCH-009） |
+| 7 | 全链路 | 1 | E2E，W6 再做，不占 W2 配额 |
 
 ## 7. 变更记录
 
 | 日期 | 版本 | 变更 |
 |---|---|---|
+| 2026-11-16 | v0.3 | LIST 14 条、PATCH 10 条接入自动化；新增 PATCH-010/011；台账补 DEF-013~015；§4 按实测重算为 47/78；§6 缺口重排 |

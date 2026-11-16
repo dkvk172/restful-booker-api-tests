@@ -1,0 +1,28 @@
+cases:
+  - id: TC-BOOK-PATCH-001
+    title: 更新多个字段
+    smoke: true
+    set: {firstname: Patched, totalprice: 100}
+    expected: {status: 200}
+    expected_body: {firstname: Patched, totalprice: 100}
+
+  - id: TC-BOOK-PATCH-002
+    title: totalprice 类型错误
+    set: {totalprice: "abc"}
+    expected: {status: 400}
+    xfail: true
+    reason: "PATCH 无校验，实测 200 DEF-005"
+
+  - id: TC-BOOK-PATCH-006
+    title: 只改 firstname，其余保持不变
+    set: {firstname: OnlyName}
+    expected: {status: 200}
+    expected_body: {lastname: Brown}
+
+  - id: TC-BOOK-PATCH-008
+    title: 只传 bookingdates.checkin
+    set: {bookingdates: {checkin: "2026-08-01"}}
+    expected: {status: 200}
+    expected_body: {bookingdates.checkout: "2026-01-05"}
+    xfail: true
+    reason: "浅合并丢 checkout，DEF-011"
